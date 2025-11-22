@@ -144,15 +144,13 @@
             position: relative;
         }
 
-        .step-indicator::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: rgba(148, 163, 184, 0.2);
-            z-index: -1;
+        kbd {
+            background: rgba(100, 116, 139, 0.3);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: monospace;
+            font-size: 0.9em;
         }
 
         .preview-image {
@@ -200,6 +198,86 @@
             </div>
         </div>
 
+        <!-- Instagram Quick Import Section -->
+        <section class="glass-effect rounded-3xl p-6 md:p-8 mb-8 bg-gradient-to-r from-pink-900/10 to-purple-900/10 border-2 border-pink-500/30">
+            <div class="flex items-center gap-3 mb-4">
+                <i class="fab fa-instagram text-3xl text-pink-500"></i>
+                <h3 class="text-2xl font-bold">⚡ 인스타그램에서 빠르게 가져오기</h3>
+            </div>
+
+            <div class="space-y-4">
+                <!-- 링크 입력 -->
+                <div>
+                    <label class="block mb-2 text-sm font-semibold flex items-center gap-2">
+                        <span class="bg-pink-500/20 text-pink-400 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">1</span>
+                        게시물 링크 붙여넣기
+                    </label>
+                    <div class="flex gap-2">
+                        <input
+                            type="url"
+                            id="instagramUrl"
+                            placeholder="https://www.instagram.com/p/ABC123/ 또는 https://www.instagram.com/reel/..."
+                            class="flex-1 bg-slate-800/80 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-pink-500 transition"
+                        />
+                        <button
+                            type="button"
+                            id="loadFromInstagram"
+                            class="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 px-8 py-3 rounded-lg font-bold whitespace-nowrap transition-all transform hover:scale-105"
+                        >
+                            <i class="fas fa-download mr-2"></i>불러오기
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2 flex items-start gap-1">
+                        <i class="fas fa-info-circle mt-0.5"></i>
+                        <span>인스타 게시물 URL을 붙여넣으면 <strong class="text-pink-400">썸네일 이미지</strong>를 자동으로 가져옵니다</span>
+                    </p>
+                </div>
+
+                <!-- 캡션 복사 가이드 -->
+                <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                    <p class="font-semibold mb-3 text-sm flex items-center gap-2">
+                        <span class="bg-blue-500/20 text-blue-400 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">2</span>
+                        캡션 복사하는 법 <span class="text-blue-400">(30초 소요)</span>
+                    </p>
+                    <ol class="text-sm text-slate-300 space-y-2 ml-2">
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-400 font-bold min-w-[20px]">①</span>
+                            <span>인스타 게시물 페이지로 이동</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-400 font-bold min-w-[20px]">②</span>
+                            <span>게시물 우측 상단 <kbd class="mx-1">⋯</kbd> 클릭</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-400 font-bold min-w-[20px]">③</span>
+                            <span><strong class="text-white">"캡션 복사"</strong> 메뉴 선택</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-400 font-bold min-w-[20px]">④</span>
+                            <span>아래 캡션 입력란에 붙여넣기 <kbd class="mx-1">Ctrl+V</kbd> 또는 <kbd class="mx-1">⌘+V</kbd></span>
+                        </li>
+                    </ol>
+                </div>
+
+                <!-- 또는 구분선 -->
+                <div class="flex items-center gap-3 my-4">
+                    <div class="flex-1 border-t border-slate-600"></div>
+                    <span class="text-slate-400 text-sm">또는</span>
+                    <div class="flex-1 border-t border-slate-600"></div>
+                </div>
+
+                <!-- 빠른 체험 버튼 -->
+                <button
+                    type="button"
+                    id="fillAllSample"
+                    class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg"
+                >
+                    <i class="fas fa-magic mr-2"></i>
+                    ✨ 예시 데이터로 빠르게 체험하기 (3초 완성)
+                </button>
+            </div>
+        </section>
+
         <!-- Input Form -->
         <section class="glass-effect rounded-3xl p-6 md:p-10 mb-8 neon-border">
             <form id="analysisForm" class="space-y-8">
@@ -208,10 +286,14 @@
                 <div>
                     <div class="flex items-center gap-3 mb-4">
                         <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-lg">1</div>
-                        <h2 class="text-2xl font-bold">
-                            <i class="fas fa-image text-purple-400 mr-2"></i>
-                            릴스 커버 (썸네일) 이미지
-                        </h2>
+                        <div>
+                            <h2 class="text-2xl font-bold">
+                                <i class="fas fa-image text-purple-400 mr-2"></i>
+                                릴스 커버 (썸네일) 이미지
+                                <span class="text-slate-400 text-sm font-normal ml-2">(선택사항)</span>
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-1">* 이미지 없이도 텍스트 분석이 가능합니다</p>
+                        </div>
                     </div>
 
                     <!-- Upload Zone -->
@@ -424,6 +506,23 @@
 
         let uploadedImage = null;
 
+        // Sample Data
+        const sampleImages = [
+            // 밝고 대비가 좋은 샘플 이미지 (Base64 또는 외부 URL)
+            'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="800"%3E%3Cdefs%3E%3ClinearGradient id="grad" x1="0%25" y1="0%25" x2="100%25" y2="100%25"%3E%3Cstop offset="0%25" style="stop-color:rgb(168,85,247);stop-opacity:1" /%3E%3Cstop offset="100%25" style="stop-color:rgb(236,72,153);stop-opacity:1" /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width="800" height="800" fill="url(%23grad)"/%3E%3Ctext x="50%25" y="45%25" font-family="Arial" font-size="48" fill="white" text-anchor="middle" font-weight="bold"%3E📸 샘플 썸네일%3C/text%3E%3Ctext x="50%25" y="55%25" font-family="Arial" font-size="24" fill="white" text-anchor="middle"%3E인스타그램 최적화%3C/text%3E%3C/svg%3E'
+        ];
+
+        const sampleCaption = `충격! 이 방법을 몰랐다면 손해
+
+인스타 노출을 3배 올리는 비밀 공개합니다.
+저는 이 방법으로 팔로워 1000명 달성했어요.
+
+진짜 효과 있는 팁만 모았습니다.
+
+프로필 링크에서 자세히 확인하세요!`;
+
+        const sampleHashtags = `#인스타그램 #마케팅 #소상공인 #광고 #SNS #꿀팁 #노출`;
+
         // Image Upload Handlers
         uploadZone.addEventListener('click', () => imageInput.click());
 
@@ -479,6 +578,113 @@
             reader.readAsDataURL(file);
         }
 
+        // Instagram URL 로드
+        document.getElementById('loadFromInstagram')?.addEventListener('click', async () => {
+            const instagramUrl = document.getElementById('instagramUrl').value.trim();
+
+            if (!instagramUrl) {
+                alert('인스타그램 게시물 링크를 입력해주세요.');
+                return;
+            }
+
+            // URL 검증
+            if (!instagramUrl.includes('instagram.com/p/') && !instagramUrl.includes('instagram.com/reel/')) {
+                alert('올바른 인스타그램 게시물 링크를 입력해주세요.\n\n예시:\n• https://www.instagram.com/p/ABC123/\n• https://www.instagram.com/reel/XYZ456/');
+                return;
+            }
+
+            // 로딩 표시
+            const btn = document.getElementById('loadFromInstagram');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>로딩 중...';
+            btn.disabled = true;
+
+            try {
+                // Instagram oEmbed API 호출
+                const oembedUrl = `https://api.instagram.com/oembed/?url=${encodeURIComponent(instagramUrl)}`;
+                const corsProxy = 'https://corsproxy.io/?url=';
+
+                const response = await fetch(corsProxy + encodeURIComponent(oembedUrl));
+
+                if (!response.ok) {
+                    throw new Error('Instagram 데이터를 불러올 수 없습니다.');
+                }
+
+                const data = await response.json();
+
+                // 이미지 로드
+                if (data.thumbnail_url) {
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+
+                    img.onload = () => {
+                        uploadedImage = data.thumbnail_url;
+                        previewImg.src = data.thumbnail_url;
+                        uploadPrompt.classList.add('hidden');
+                        imagePreview.classList.remove('hidden');
+
+                        // 스캔 애니메이션
+                        setTimeout(() => {
+                            scanGrid.classList.add('active');
+                            scanLine.classList.add('active');
+                        }, 100);
+
+                        alert('✅ 이미지가 로드되었습니다!\n\n다음 단계:\n위 가이드를 참고해서 캡션을 복사해 붙여넣으세요.');
+
+                        // 스크롤을 캡션 입력란으로 이동
+                        document.getElementById('caption').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    };
+
+                    img.onerror = () => {
+                        throw new Error('이미지 로딩 실패');
+                    };
+
+                    img.src = data.thumbnail_url;
+                } else {
+                    throw new Error('이미지 URL을 찾을 수 없습니다.');
+                }
+
+            } catch (error) {
+                console.error('Instagram 로드 오류:', error);
+                alert('❌ 이미지를 불러올 수 없습니다.\n\n가능한 원인:\n• 비공개 게시물\n• 잘못된 URL 형식\n• 일시적인 네트워크 오류\n• Instagram API 제한\n\n해결 방법:\n1. URL을 다시 확인하세요\n2. 또는 직접 이미지 파일을 업로드하세요\n3. 또는 "예시 데이터로 체험하기" 버튼을 클릭하세요');
+            } finally {
+                // 로딩 종료
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // 예시 데이터로 모두 채우기
+        document.getElementById('fillAllSample')?.addEventListener('click', () => {
+            // 샘플 이미지 로드
+            uploadedImage = sampleImages[0];
+            previewImg.src = sampleImages[0];
+            uploadPrompt.classList.add('hidden');
+            imagePreview.classList.remove('hidden');
+
+            // 스캔 애니메이션
+            setTimeout(() => {
+                scanGrid.classList.add('active');
+                scanLine.classList.add('active');
+            }, 100);
+
+            // 샘플 텍스트 입력
+            captionInput.value = sampleCaption;
+            hashtagsInput.value = sampleHashtags;
+
+            // 카운터 업데이트 트리거
+            captionInput.dispatchEvent(new Event('input'));
+            hashtagsInput.dispatchEvent(new Event('input'));
+
+            // 성공 알림
+            alert('✅ 예시 데이터가 모두 입력되었습니다!\n\n이제 "AI 정밀 분석 시작하기" 버튼을 클릭하세요.');
+
+            // 분석 버튼으로 스크롤
+            setTimeout(() => {
+                document.querySelector('button[type="submit"]').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        });
+
         // Real-time counters
         captionInput.addEventListener('input', () => {
             const text = captionInput.value;
@@ -497,10 +703,9 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Validation
+            // 이미지가 없으면 샘플 이미지 사용
             if (!uploadedImage) {
-                alert('썸네일 이미지를 먼저 업로드해주세요!');
-                return;
+                uploadedImage = sampleImages[0];
             }
 
             // Hide results, show loading
