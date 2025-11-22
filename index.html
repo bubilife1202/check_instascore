@@ -830,65 +830,42 @@
             document.getElementById('visualScore').textContent = scores.visualTotal;
             document.getElementById('textScore').textContent = scores.textTotal;
 
-            // Score Level
+            // Score Level & CTA (Unified Notion Link Strategy)
             const scoreLevelEl = document.getElementById('scoreLevel');
+            const notionUrl = 'https://subdued-piranha-4c8.notion.site/10-30-2b3ba5a812998022a9e7fc4f45529886?pvs=143';
             let ctaHtml = '';
 
-            if (scores.total >= 85) {
-                scoreLevelEl.innerHTML = '🏆 <span class="text-yellow-400">완벽! 상위 1% 수준입니다!</span>';
+            if (scores.total >= 80) {
+                // CASE B: 80점 이상 - 축하 & 보상 메시지
+                scoreLevelEl.innerHTML = '🏆 <span class="text-purple-400">우수! 상위 10% 수준입니다!</span>';
                 ctaHtml = `
-                    <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+                    <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">
                         👏 감각 있으시네요!
                     </h3>
                     <p class="text-slate-300 mb-6 text-lg">
-                        ${scores.total}점! 노출 확률 최상급입니다. 전문가 수준의 콘텐츠를 제작하셨네요!
+                        ${scores.total}점! 노출 확률이 높습니다. 전문가 수준의 콘텐츠네요!<br>
+                        특별 선물을 준비했습니다 🎁
                     </p>
-                    <button onclick="window.location.href='#'" class="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold py-4 px-8 rounded-xl transition-all transform hover:scale-105">
+                    <a href="${notionUrl}" target="_blank" rel="noopener noreferrer" class="inline-block bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold py-4 px-10 rounded-xl transition-all transform hover:scale-105 shadow-lg hover:shadow-purple-500/50">
                         <i class="fas fa-gift mr-2"></i>
-                        무료 프리미엄 소재 받기
-                    </button>
-                `;
-            } else if (scores.total >= 70) {
-                scoreLevelEl.innerHTML = '🎯 <span class="text-green-400">우수! 상위 10% 수준입니다!</span>';
-                ctaHtml = `
-                    <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-                        👍 잘하고 계세요!
-                    </h3>
-                    <p class="text-slate-300 mb-6 text-lg">
-                        ${scores.total}점으로 훌륭합니다. 조금만 더 보완하면 완벽해집니다!
-                    </p>
-                    <button onclick="window.location.href='#'" class="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold py-4 px-8 rounded-xl transition-all transform hover:scale-105">
-                        <i class="fas fa-rocket mr-2"></i>
-                        최적화 가이드 받기
-                    </button>
-                `;
-            } else if (scores.total >= 50) {
-                scoreLevelEl.innerHTML = '⚠️ <span class="text-orange-400">보통. 개선이 필요합니다</span>';
-                ctaHtml = `
-                    <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
-                        🔧 전문가의 도움이 필요합니다
-                    </h3>
-                    <p class="text-slate-300 mb-6 text-lg">
-                        ${scores.total}점... 노출에 어려움을 겪을 수 있습니다. 전문가와 상담해보세요!
-                    </p>
-                    <button onclick="window.location.href='#'" class="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-4 px-8 rounded-xl transition-all transform hover:scale-105">
-                        <i class="fas fa-user-md mr-2"></i>
-                        무료 1:1 컨설팅 신청
-                    </button>
+                        선물: 떡상 제목 30선 무료 다운로드
+                    </a>
                 `;
             } else {
-                scoreLevelEl.innerHTML = '🚨 <span class="text-red-400">위험! 대폭 수정이 필요합니다</span>';
+                // CASE A: 80점 미만 - 긴급 & 위기감 메시지
+                scoreLevelEl.innerHTML = '🚨 <span class="text-red-400">위험! 개선이 필요합니다</span>';
                 ctaHtml = `
-                    <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-red-400 to-pink-500 bg-clip-text text-transparent">
-                        🚨 노출 실패 위험!
+                    <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-red-400 via-rose-400 to-red-500 bg-clip-text text-transparent">
+                        🚨 점수가 위험합니다
                     </h3>
                     <p class="text-slate-300 mb-6 text-lg">
-                        ${scores.total}점은 매우 위험합니다. 지금 바로 전문가의 심폐소생술이 필요합니다!
+                        ${scores.total}점... 현재 상태로는 노출이 어렵습니다.<br>
+                        지금 바로 필독 자료를 확인하세요!
                     </p>
-                    <button onclick="window.location.href='#'" class="bg-gradient-to-r from-red-500 via-pink-500 to-red-500 hover:from-red-600 hover:via-pink-600 hover:to-red-600 text-white font-bold py-4 px-8 rounded-xl transition-all transform hover:scale-105 animate-pulse">
-                        <i class="fas fa-first-aid mr-2"></i>
-                        긴급! 심폐소생술 받기
-                    </button>
+                    <a href="${notionUrl}" target="_blank" rel="noopener noreferrer" class="inline-block bg-gradient-to-r from-red-600 via-rose-600 to-red-600 hover:from-red-700 hover:via-rose-700 hover:to-red-700 text-white font-bold py-4 px-10 rounded-xl transition-all transform hover:scale-105 shadow-lg hover:shadow-red-500/50 animate-pulse">
+                        <i class="fas fa-bolt mr-2"></i>
+                        필독: 노출 치트키 자료집 받기
+                    </a>
                 `;
             }
 
