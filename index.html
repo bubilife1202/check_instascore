@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>인스타그램 노출 확률 계산기 - AI SEO 분석</title>
+    <title>인스타그램 콘텐츠 올인원 진단기 - AI 비주얼 + 텍스트 분석</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,29 +14,102 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+    <!-- Pretendard Font -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
 
+    <style>
         body {
-            font-family: 'Noto Sans KR', sans-serif;
+            font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
         }
 
         .gradient-bg {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 10s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .neon-border {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4), 0 0 40px rgba(236, 72, 153, 0.2);
         }
 
         .glass-effect {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .upload-zone {
+            border: 2px dashed rgba(168, 85, 247, 0.5);
+            transition: all 0.3s ease;
+            background: rgba(168, 85, 247, 0.05);
+        }
+
+        .upload-zone:hover {
+            border-color: rgba(236, 72, 153, 0.8);
+            background: rgba(236, 72, 153, 0.1);
+            box-shadow: 0 0 30px rgba(236, 72, 153, 0.3);
+        }
+
+        .upload-zone.dragover {
+            border-color: #ec4899;
+            background: rgba(236, 72, 153, 0.15);
+            transform: scale(1.02);
+        }
+
+        .scan-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(0deg, transparent 24%, rgba(34, 197, 94, 0.3) 25%, rgba(34, 197, 94, 0.3) 26%, transparent 27%, transparent 74%, rgba(34, 197, 94, 0.3) 75%, rgba(34, 197, 94, 0.3) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(34, 197, 94, 0.3) 25%, rgba(34, 197, 94, 0.3) 26%, transparent 27%, transparent 74%, rgba(34, 197, 94, 0.3) 75%, rgba(34, 197, 94, 0.3) 76%, transparent 77%, transparent);
+            background-size: 50px 50px;
+            animation: scanAnimation 2s linear infinite;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .scan-grid.active {
+            opacity: 1;
+        }
+
+        @keyframes scanAnimation {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #22c55e, transparent);
+            box-shadow: 0 0 10px #22c55e;
+            animation: scanLine 2s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        .scan-line.active {
+            opacity: 1;
+        }
+
+        @keyframes scanLine {
+            0%, 100% { top: 0; }
+            50% { top: 100%; }
         }
 
         .loading-spinner {
-            border: 3px solid rgba(59, 130, 246, 0.3);
-            border-top: 3px solid #3b82f6;
+            border: 4px solid rgba(168, 85, 247, 0.2);
+            border-top: 4px solid #a855f7;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             animation: spin 1s linear infinite;
         }
 
@@ -46,11 +119,11 @@
         }
 
         .fade-in {
-            animation: fadeIn 0.5s ease-in;
+            animation: fadeIn 0.6s ease-in;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -59,153 +132,259 @@
         }
 
         @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
-            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+            0%, 100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(236, 72, 153, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(168, 85, 247, 0.8), 0 0 60px rgba(236, 72, 153, 0.5); }
         }
 
-        .score-circle {
+        .neon-text {
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.8), 0 0 20px rgba(236, 72, 153, 0.6);
+        }
+
+        .step-indicator {
             position: relative;
-            width: 200px;
-            height: 200px;
+        }
+
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(148, 163, 184, 0.2);
+            z-index: -1;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 12px;
         }
     </style>
 </head>
 <body class="gradient-bg min-h-screen text-white">
 
     <!-- Header -->
-    <header class="py-8 px-4">
-        <div class="container mx-auto max-w-4xl text-center">
+    <header class="py-10 px-4">
+        <div class="container mx-auto max-w-6xl text-center">
             <div class="flex items-center justify-center mb-4">
-                <i class="fab fa-instagram text-5xl bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent"></i>
+                <i class="fab fa-instagram text-6xl bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent"></i>
             </div>
-            <h1 class="text-4xl md:text-5xl font-black mb-3 bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
-                인스타그램 노출 확률 계산기
+            <h1 class="text-5xl md:text-6xl font-black mb-4 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-500 bg-clip-text text-transparent neon-text">
+                콘텐츠 올인원 진단기
             </h1>
-            <p class="text-slate-400 text-lg">
-                AI 기반 SEO 분석으로 내 게시물의 노출 가능성을 진단하세요
+            <p class="text-slate-300 text-xl mb-2">
+                📸 비주얼 + ✍️ 텍스트 동시 AI 분석
+            </p>
+            <p class="text-slate-400">
+                썸네일과 캡션을 함께 진단하여 최적의 노출 점수를 계산합니다
             </p>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="container mx-auto max-w-4xl px-4 pb-16">
+    <main class="container mx-auto max-w-6xl px-4 pb-16">
+
+        <!-- Step Indicator -->
+        <div class="mb-10">
+            <div class="flex items-center justify-center gap-4 step-indicator max-w-2xl mx-auto">
+                <div class="flex items-center gap-2 bg-purple-500/20 px-6 py-3 rounded-full border border-purple-500/50">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold">1</div>
+                    <span class="font-semibold">비주얼</span>
+                </div>
+                <div class="flex items-center gap-2 bg-pink-500/20 px-6 py-3 rounded-full border border-pink-500/50">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center font-bold">2</div>
+                    <span class="font-semibold">텍스트</span>
+                </div>
+            </div>
+        </div>
 
         <!-- Input Form -->
-        <section class="glass-effect rounded-2xl p-6 md:p-8 mb-8">
-            <h2 class="text-2xl font-bold mb-6 flex items-center">
-                <i class="fas fa-edit text-blue-500 mr-3"></i>
-                게시물 정보 입력
-            </h2>
+        <section class="glass-effect rounded-3xl p-6 md:p-10 mb-8 neon-border">
+            <form id="analysisForm" class="space-y-8">
 
-            <form id="analysisForm" class="space-y-6">
-
-                <!-- 계정 체급 -->
+                <!-- STEP 1: 이미지 업로드 -->
                 <div>
-                    <label class="block text-sm font-semibold mb-2 text-slate-300">
-                        <i class="fas fa-users mr-2"></i>계정 체급
-                    </label>
-                    <select id="accountLevel" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                        <option value="beginner">왕초보 (팔로워 0~100)</option>
-                        <option value="growing">성장기 (팔로워 100~1k)</option>
-                        <option value="micro">마이크로 인플루언서 (1k~10k)</option>
-                    </select>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-lg">1</div>
+                        <h2 class="text-2xl font-bold">
+                            <i class="fas fa-image text-purple-400 mr-2"></i>
+                            릴스 커버 (썸네일) 이미지
+                        </h2>
+                    </div>
+
+                    <!-- Upload Zone -->
+                    <div id="uploadZone" class="upload-zone rounded-2xl p-8 text-center cursor-pointer relative overflow-hidden">
+                        <input type="file" id="imageInput" accept="image/*" class="hidden">
+
+                        <div id="uploadPrompt">
+                            <i class="fas fa-cloud-upload-alt text-6xl text-purple-400 mb-4"></i>
+                            <p class="text-xl font-semibold mb-2">이미지를 드래그하거나 클릭하여 업로드</p>
+                            <p class="text-slate-400 text-sm">JPG, PNG, GIF 지원 (최대 10MB)</p>
+                        </div>
+
+                        <div id="imagePreview" class="hidden relative">
+                            <img id="previewImg" class="preview-image mx-auto" alt="미리보기">
+                            <div class="scan-grid" id="scanGrid"></div>
+                            <div class="scan-line" id="scanLine"></div>
+                            <button type="button" id="removeImage" class="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- 캡션 내용 -->
-                <div>
-                    <label class="block text-sm font-semibold mb-2 text-slate-300">
-                        <i class="fas fa-align-left mr-2"></i>캡션(본문) 내용
-                    </label>
-                    <textarea
-                        id="caption"
-                        rows="8"
-                        placeholder="게시물 본문을 입력하세요...&#10;&#10;예시:&#10;충격! 이 방법을 몰랐다면 손해&#10;&#10;인스타 노출을 3배 올리는 비밀 공개합니다.&#10;저는 이 방법으로 팔로워 1000명 달성했어요.&#10;&#10;프로필 링크에서 자세히 확인하세요!"
-                        class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none"
-                    ></textarea>
-                    <p class="text-xs text-slate-500 mt-2">
-                        <span id="captionLength">0</span>자 | 줄바꿈: <span id="lineBreaks">0</span>회
-                    </p>
-                </div>
+                <div class="border-t border-slate-700/50 my-8"></div>
 
-                <!-- 해시태그 -->
+                <!-- STEP 2: 텍스트 입력 -->
                 <div>
-                    <label class="block text-sm font-semibold mb-2 text-slate-300">
-                        <i class="fas fa-hashtag mr-2"></i>해시태그
-                    </label>
-                    <textarea
-                        id="hashtags"
-                        rows="3"
-                        placeholder="#인스타그램 #마케팅 #소상공인 #광고 #SNS마케팅"
-                        class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none"
-                    ></textarea>
-                    <p class="text-xs text-slate-500 mt-2">
-                        해시태그 개수: <span id="hashtagCount">0</span>개
-                    </p>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center font-bold text-lg">2</div>
+                        <h2 class="text-2xl font-bold">
+                            <i class="fas fa-pen text-pink-400 mr-2"></i>
+                            게시물 텍스트 정보
+                        </h2>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+
+                        <!-- Left Column -->
+                        <div class="space-y-6">
+                            <!-- 계정 체급 -->
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-slate-300">
+                                    <i class="fas fa-crown mr-2 text-yellow-400"></i>계정 체급
+                                </label>
+                                <select id="accountLevel" class="w-full bg-slate-800/80 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition">
+                                    <option value="beginner">왕초보 (팔로워 0~100)</option>
+                                    <option value="growing">성장기 (팔로워 100~1k)</option>
+                                    <option value="micro">마이크로 인플루언서 (1k+)</option>
+                                </select>
+                            </div>
+
+                            <!-- 해시태그 -->
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-slate-300">
+                                    <i class="fas fa-hashtag mr-2 text-blue-400"></i>해시태그
+                                </label>
+                                <textarea
+                                    id="hashtags"
+                                    rows="5"
+                                    placeholder="#인스타그램 #마케팅 #소상공인 #광고 #SNS"
+                                    class="w-full bg-slate-800/80 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition resize-none"
+                                ></textarea>
+                                <p class="text-xs text-slate-400 mt-2">
+                                    해시태그 개수: <span id="hashtagCount" class="text-purple-400 font-semibold">0</span>개
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div>
+                            <!-- 캡션 -->
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-slate-300">
+                                    <i class="fas fa-align-left mr-2 text-green-400"></i>캡션 (본문)
+                                </label>
+                                <textarea
+                                    id="caption"
+                                    rows="11"
+                                    placeholder="충격! 이 방법을 몰랐다면 손해&#10;&#10;인스타 노출을 3배 올리는 비밀 공개합니다.&#10;저는 이 방법으로 팔로워 1000명 달성했어요.&#10;&#10;프로필 링크에서 자세히 확인하세요!"
+                                    class="w-full bg-slate-800/80 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition resize-none"
+                                ></textarea>
+                                <p class="text-xs text-slate-400 mt-2">
+                                    <span id="captionLength" class="text-purple-400 font-semibold">0</span>자 |
+                                    줄바꿈: <span id="lineBreaks" class="text-purple-400 font-semibold">0</span>회
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Submit Button -->
                 <button
                     type="submit"
-                    class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-4 rounded-lg transition-all transform hover:scale-[1.02] pulse-glow"
+                    class="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white font-bold py-5 rounded-xl transition-all transform hover:scale-[1.02] pulse-glow text-lg"
                 >
-                    <i class="fas fa-chart-line mr-2"></i>
-                    노출 확률 분석하기
+                    <i class="fas fa-bolt mr-2"></i>
+                    AI 정밀 분석 시작하기
                 </button>
             </form>
         </section>
 
         <!-- Loading Animation -->
-        <div id="loadingSection" class="hidden text-center py-16">
-            <div class="loading-spinner mx-auto mb-4"></div>
-            <p class="text-slate-400 text-lg">AI가 게시물을 분석하고 있습니다...</p>
+        <div id="loadingSection" class="hidden text-center py-20">
+            <div class="loading-spinner mx-auto mb-6"></div>
+            <p class="text-slate-300 text-xl font-semibold mb-2">🤖 AI가 정밀 분석 중입니다...</p>
+            <p class="text-slate-500">비주얼 품질 + 텍스트 최적화 분석 중</p>
+            <div class="mt-8 flex justify-center gap-2">
+                <div class="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
+                <div class="w-3 h-3 bg-pink-500 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
+                <div class="w-3 h-3 bg-purple-500 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
+            </div>
         </div>
 
         <!-- Results Section -->
         <section id="resultsSection" class="hidden fade-in">
 
             <!-- 종합 점수 -->
-            <div class="glass-effect rounded-2xl p-6 md:p-8 mb-8 text-center">
-                <h2 class="text-2xl font-bold mb-6">
-                    <i class="fas fa-trophy text-yellow-500 mr-2"></i>
+            <div class="glass-effect rounded-3xl p-8 md:p-10 mb-8 text-center neon-border">
+                <h2 class="text-3xl font-bold mb-8">
+                    <i class="fas fa-trophy text-yellow-400 mr-2"></i>
                     종합 노출 점수
                 </h2>
 
-                <div class="flex flex-col md:flex-row items-center justify-center gap-8">
+                <div class="flex flex-col md:flex-row items-center justify-center gap-12">
                     <!-- Score Number -->
                     <div>
-                        <div class="text-8xl font-black bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-2">
+                        <div class="text-9xl font-black bg-gradient-to-r from-purple-400 via-pink-400 to-purple-500 bg-clip-text text-transparent mb-3">
                             <span id="totalScore">0</span>
                         </div>
-                        <div class="text-2xl font-bold text-slate-300">
+                        <div class="text-3xl font-bold text-slate-300 mb-4">
                             / 100점
                         </div>
-                        <div id="scoreLevel" class="text-lg text-blue-400 font-semibold mt-2">
+                        <div id="scoreLevel" class="text-xl font-bold">
                             <!-- 평가 등급 -->
                         </div>
                     </div>
 
                     <!-- Donut Chart -->
-                    <div class="w-48 h-48">
+                    <div class="w-56 h-56">
                         <canvas id="donutChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Score Breakdown -->
+                <div class="mt-8 grid grid-cols-2 gap-4 max-w-md mx-auto">
+                    <div class="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4">
+                        <div class="text-purple-400 text-sm mb-1">📸 비주얼 점수</div>
+                        <div class="text-3xl font-bold" id="visualScore">0</div>
+                        <div class="text-slate-400 text-xs">/ 40점</div>
+                    </div>
+                    <div class="bg-pink-500/10 border border-pink-500/30 rounded-xl p-4">
+                        <div class="text-pink-400 text-sm mb-1">✍️ 텍스트 점수</div>
+                        <div class="text-3xl font-bold" id="textScore">0</div>
+                        <div class="text-slate-400 text-xs">/ 60점</div>
                     </div>
                 </div>
             </div>
 
             <!-- 레이더 차트 -->
-            <div class="glass-effect rounded-2xl p-6 md:p-8 mb-8">
-                <h2 class="text-2xl font-bold mb-6 text-center">
-                    <i class="fas fa-radar text-blue-500 mr-2"></i>
-                    항목별 균형 분석
+            <div class="glass-effect rounded-3xl p-8 md:p-10 mb-8">
+                <h2 class="text-3xl font-bold mb-8 text-center">
+                    <i class="fas fa-chart-radar text-purple-400 mr-2"></i>
+                    6각 균형 분석
                 </h2>
-                <div class="max-w-md mx-auto">
+                <div class="max-w-xl mx-auto">
                     <canvas id="radarChart"></canvas>
                 </div>
             </div>
 
             <!-- 상세 피드백 -->
-            <div class="glass-effect rounded-2xl p-6 md:p-8 mb-8">
-                <h2 class="text-2xl font-bold mb-6">
-                    <i class="fas fa-clipboard-list text-green-500 mr-2"></i>
+            <div class="glass-effect rounded-3xl p-8 md:p-10 mb-8">
+                <h2 class="text-3xl font-bold mb-8">
+                    <i class="fas fa-clipboard-check text-green-400 mr-2"></i>
                     상세 진단 리포트
                 </h2>
                 <div id="feedbackList" class="space-y-4">
@@ -213,18 +392,9 @@
                 </div>
             </div>
 
-            <!-- CTA Section -->
-            <div class="glass-effect rounded-2xl p-8 text-center bg-gradient-to-r from-blue-900/30 to-purple-900/30">
-                <h3 class="text-2xl font-bold mb-3">
-                    전문가의 도움이 필요하신가요?
-                </h3>
-                <p class="text-slate-300 mb-6">
-                    이 점수를 바탕으로 인스타그램 마케팅 대행 서비스를 제공합니다
-                </p>
-                <button class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-lg transition-all transform hover:scale-105">
-                    <i class="fas fa-envelope mr-2"></i>
-                    무료 상담 문의하기
-                </button>
+            <!-- Dynamic CTA Section -->
+            <div id="ctaSection" class="glass-effect rounded-3xl p-10 text-center neon-border">
+                <!-- CTA 내용이 점수에 따라 동적으로 변경됩니다 -->
             </div>
 
         </section>
@@ -233,16 +403,81 @@
 
     <!-- Footer -->
     <footer class="text-center py-8 text-slate-500 text-sm">
-        <p>© 2025 Instagram Exposure Calculator. All rights reserved.</p>
+        <p>© 2025 Instagram Content Diagnoser. Powered by AI Analysis Engine.</p>
     </footer>
 
     <script>
         // DOM Elements
         const form = document.getElementById('analysisForm');
+        const uploadZone = document.getElementById('uploadZone');
+        const imageInput = document.getElementById('imageInput');
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const removeImage = document.getElementById('removeImage');
+        const scanGrid = document.getElementById('scanGrid');
+        const scanLine = document.getElementById('scanLine');
         const captionInput = document.getElementById('caption');
         const hashtagsInput = document.getElementById('hashtags');
         const loadingSection = document.getElementById('loadingSection');
         const resultsSection = document.getElementById('resultsSection');
+
+        let uploadedImage = null;
+
+        // Image Upload Handlers
+        uploadZone.addEventListener('click', () => imageInput.click());
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleImageUpload(file);
+            }
+        });
+
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleImageUpload(file);
+            }
+        });
+
+        removeImage.addEventListener('click', (e) => {
+            e.stopPropagation();
+            uploadedImage = null;
+            imageInput.value = '';
+            uploadPrompt.classList.remove('hidden');
+            imagePreview.classList.add('hidden');
+            scanGrid.classList.remove('active');
+            scanLine.classList.remove('active');
+        });
+
+        function handleImageUpload(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedImage = e.target.result;
+                previewImg.src = uploadedImage;
+                uploadPrompt.classList.add('hidden');
+                imagePreview.classList.remove('hidden');
+
+                // Activate scan animation
+                setTimeout(() => {
+                    scanGrid.classList.add('active');
+                    scanLine.classList.add('active');
+                }, 100);
+            };
+            reader.readAsDataURL(file);
+        }
 
         // Real-time counters
         captionInput.addEventListener('input', () => {
@@ -262,23 +497,26 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            // Validation
+            if (!uploadedImage) {
+                alert('썸네일 이미지를 먼저 업로드해주세요!');
+                return;
+            }
+
             // Hide results, show loading
             resultsSection.classList.add('hidden');
             loadingSection.classList.remove('hidden');
-
-            // Scroll to loading section
             loadingSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-            // Simulate AI analysis delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            // 3초 로딩
+            await new Promise(resolve => setTimeout(resolve, 3000));
 
             // Get form values
-            const accountLevel = document.getElementById('accountLevel').value;
             const caption = captionInput.value;
             const hashtags = hashtagsInput.value;
 
             // Calculate scores
-            const scores = calculateScores(caption, hashtags);
+            const scores = await calculateScores(uploadedImage, caption, hashtags);
 
             // Display results
             displayResults(scores);
@@ -286,14 +524,76 @@
             // Hide loading, show results
             loadingSection.classList.add('hidden');
             resultsSection.classList.remove('hidden');
-
-            // Scroll to results
             resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
 
+        // Image Analysis using Canvas API
+        async function analyzeImage(imageSrc) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Resize for performance
+                    const maxSize = 500;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height && width > maxSize) {
+                        height = (height * maxSize) / width;
+                        width = maxSize;
+                    } else if (height > maxSize) {
+                        width = (width * maxSize) / height;
+                        height = maxSize;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const imageData = ctx.getImageData(0, 0, width, height);
+                    const data = imageData.data;
+
+                    let totalBrightness = 0;
+                    let brightnessValues = [];
+
+                    // Calculate brightness and contrast
+                    for (let i = 0; i < data.length; i += 4) {
+                        const r = data[i];
+                        const g = data[i + 1];
+                        const b = data[i + 2];
+
+                        // Brightness (0-255)
+                        const brightness = (r + g + b) / 3;
+                        totalBrightness += brightness;
+                        brightnessValues.push(brightness);
+                    }
+
+                    const avgBrightness = totalBrightness / brightnessValues.length;
+
+                    // Calculate standard deviation for contrast
+                    const variance = brightnessValues.reduce((sum, val) => {
+                        return sum + Math.pow(val - avgBrightness, 2);
+                    }, 0) / brightnessValues.length;
+                    const stdDev = Math.sqrt(variance);
+
+                    resolve({
+                        brightness: avgBrightness,
+                        contrast: stdDev
+                    });
+                };
+                img.src = imageSrc;
+            });
+        }
+
         // Score Calculation Logic
-        function calculateScores(caption, hashtags) {
+        async function calculateScores(imageSrc, caption, hashtags) {
             const scores = {
+                // Image scores (40 points)
+                brightness: 0,
+                contrast: 0,
+                // Text scores (60 points)
                 hooking: 0,
                 readability: 0,
                 hashtag: 0,
@@ -301,167 +601,224 @@
                 feedback: []
             };
 
-            // A. 후킹력 (30점)
+            // === IMAGE ANALYSIS (40점) ===
+            const imageAnalysis = await analyzeImage(imageSrc);
+
+            // 1. 밝기 분석 (20점)
+            const brightness = imageAnalysis.brightness;
+            if (brightness >= 80 && brightness <= 180) {
+                // 이상적인 밝기 범위
+                scores.brightness = 20;
+                scores.feedback.push({
+                    icon: '✅',
+                    type: 'success',
+                    title: '비주얼 - 밝기',
+                    message: `썸네일 밝기가 ${Math.round(brightness)}/255로 최적입니다! 클릭을 부르는 밝기입니다.`
+                });
+            } else if (brightness >= 60 && brightness <= 200) {
+                scores.brightness = 12;
+                scores.feedback.push({
+                    icon: '⚠️',
+                    type: 'warning',
+                    title: '비주얼 - 밝기',
+                    message: `밝기가 ${Math.round(brightness)}/255입니다. 조금 더 조정하면 좋겠습니다.`
+                });
+            } else if (brightness < 60) {
+                scores.brightness = 5;
+                scores.feedback.push({
+                    icon: '🚨',
+                    type: 'error',
+                    title: '비주얼 - 밝기',
+                    message: `이미지가 너무 어둡습니다 (${Math.round(brightness)}/255). 밝기를 높여주세요!`
+                });
+            } else {
+                scores.brightness = 5;
+                scores.feedback.push({
+                    icon: '🚨',
+                    type: 'error',
+                    title: '비주얼 - 밝기',
+                    message: `이미지가 너무 밝습니다 (${Math.round(brightness)}/255). 눈이 부실 수 있어요.`
+                });
+            }
+
+            // 2. 대비 분석 (20점)
+            const contrast = imageAnalysis.contrast;
+            if (contrast >= 40 && contrast <= 80) {
+                // 이상적인 대비
+                scores.contrast = 20;
+                scores.feedback.push({
+                    icon: '✅',
+                    type: 'success',
+                    title: '비주얼 - 주목도 (대비)',
+                    message: `색상 대비가 ${Math.round(contrast)}/100로 완벽합니다! 시선을 사로잡는 이미지입니다.`
+                });
+            } else if (contrast >= 25 && contrast <= 100) {
+                scores.contrast = 12;
+                scores.feedback.push({
+                    icon: '⚠️',
+                    type: 'warning',
+                    title: '비주얼 - 주목도 (대비)',
+                    message: `대비가 ${Math.round(contrast)}/100입니다. 조금 더 뚜렷하게 만들어보세요.`
+                });
+            } else if (contrast < 25) {
+                scores.contrast = 5;
+                scores.feedback.push({
+                    icon: '🚨',
+                    type: 'error',
+                    title: '비주얼 - 주목도 (대비)',
+                    message: `이미지가 너무 흐릿합니다 (${Math.round(contrast)}/100). 색상 대비를 높여주세요!`
+                });
+            } else {
+                scores.contrast = 10;
+                scores.feedback.push({
+                    icon: '⚠️',
+                    type: 'warning',
+                    title: '비주얼 - 주목도 (대비)',
+                    message: `대비가 매우 높습니다 (${Math.round(contrast)}/100). 다소 과할 수 있어요.`
+                });
+            }
+
+            // === TEXT ANALYSIS (60점) ===
             const lines = caption.split('\n').filter(line => line.trim() !== '');
+
+            // 1. 후킹력 (15점)
             if (lines.length > 0) {
                 const firstLine = lines[0];
-                const firstLineLength = firstLine.length;
+                const hookingKeywords = ['충격', '비밀', '공개', '방법', '이유', '결국', '헉', 'ㄷㄷ', '대박', '진짜', '꿀팁', '필수', '추천', '실화', '무료', '할인'];
+                const hasHookingKeyword = hookingKeywords.some(keyword => firstLine.includes(keyword));
 
-                // 첫 줄 길이 체크 (10~30자)
-                if (firstLineLength >= 10 && firstLineLength <= 30) {
-                    scores.hooking += 15;
+                if (hasHookingKeyword && firstLine.length >= 10 && firstLine.length <= 30) {
+                    scores.hooking = 15;
                     scores.feedback.push({
                         icon: '✅',
                         type: 'success',
-                        title: '후킹력 - 첫 줄 길이',
-                        message: `첫 줄이 ${firstLineLength}자로 적절합니다! 가독성이 좋습니다.`
+                        title: '텍스트 - 후킹력',
+                        message: '첫 줄에 자극적 키워드가 있고 길이도 완벽합니다! 📈'
                     });
-                } else if (firstLineLength < 10) {
-                    scores.feedback.push({
-                        icon: '🚨',
-                        type: 'error',
-                        title: '후킹력 - 첫 줄 길이',
-                        message: `첫 줄이 너무 짧습니다 (${firstLineLength}자). 10~30자 사이가 이상적입니다.`
-                    });
-                } else {
+                } else if (hasHookingKeyword) {
+                    scores.hooking = 10;
                     scores.feedback.push({
                         icon: '⚠️',
                         type: 'warning',
-                        title: '후킹력 - 첫 줄 길이',
-                        message: `첫 줄이 너무 깁니다 (${firstLineLength}자). 10~30자로 줄여보세요.`
+                        title: '텍스트 - 후킹력',
+                        message: '키워드는 좋지만 첫 줄 길이를 10~30자로 조정해보세요.'
                     });
-                }
-
-                // 후킹 키워드 체크
-                const hookingKeywords = ['충격', '비밀', '공개', '방법', '이유', '결국', '헉', 'ㄷㄷ', '대박', '진짜', '꿀팁', '필수', '추천', '실화'];
-                const hasHookingKeyword = hookingKeywords.some(keyword => firstLine.includes(keyword));
-
-                if (hasHookingKeyword) {
-                    scores.hooking += 15;
+                } else if (firstLine.length >= 10 && firstLine.length <= 30) {
+                    scores.hooking = 8;
                     scores.feedback.push({
-                        icon: '✅',
-                        type: 'success',
-                        title: '후킹력 - 키워드',
-                        message: '첫 줄에 후킹 키워드가 포함되어 있습니다! 클릭률이 높아집니다.'
+                        icon: '⚠️',
+                        type: 'warning',
+                        title: '텍스트 - 후킹력',
+                        message: '첫 줄 길이는 좋지만 "충격", "비밀", "공개" 같은 키워드를 추가하세요.'
                     });
                 } else {
+                    scores.hooking = 3;
                     scores.feedback.push({
                         icon: '🚨',
                         type: 'error',
-                        title: '후킹력 - 키워드',
-                        message: '첫 줄이 밋밋합니다. "충격", "비밀", "공개", "방법" 같은 키워드를 넣어보세요.'
+                        title: '텍스트 - 후킹력',
+                        message: '첫 줄이 너무 밋밋합니다. 자극적인 키워드와 적절한 길이(10~30자)가 필요합니다.'
                     });
                 }
             }
 
-            // B. 가독성 (20점)
+            // 2. 가독성 (15점)
             const lineBreakCount = (caption.match(/\n/g) || []).length;
             const captionLength = caption.length;
 
-            // 줄바꿈 체크
-            if (lineBreakCount >= 3) {
-                scores.readability += 10;
+            let readabilityScore = 0;
+            if (lineBreakCount >= 3) readabilityScore += 8;
+            if (captionLength >= 100 && captionLength < 2200) readabilityScore += 7;
+
+            scores.readability = readabilityScore;
+
+            if (readabilityScore >= 13) {
                 scores.feedback.push({
                     icon: '✅',
                     type: 'success',
-                    title: '가독성 - 줄바꿈',
-                    message: `줄바꿈이 ${lineBreakCount}회로 적절합니다. 벽돌글을 피했어요!`
+                    title: '텍스트 - 가독성',
+                    message: `줄바꿈 ${lineBreakCount}회, ${captionLength}자로 완벽합니다! 읽기 편한 글입니다.`
+                });
+            } else if (readabilityScore >= 7) {
+                scores.feedback.push({
+                    icon: '⚠️',
+                    type: 'warning',
+                    title: '텍스트 - 가독성',
+                    message: `개선 여지가 있습니다. 줄바꿈 3회 이상, 본문 100자 이상 권장합니다.`
                 });
             } else {
                 scores.feedback.push({
-                    icon: '⚠️',
-                    type: 'warning',
-                    title: '가독성 - 줄바꿈',
-                    message: `줄바꿈이 ${lineBreakCount}회로 부족합니다. 최소 3회 이상 권장합니다.`
+                    icon: '🚨',
+                    type: 'error',
+                    title: '텍스트 - 가독성',
+                    message: '벽돌글 위험! 줄바꿈을 늘리고 본문 길이를 조정하세요.'
                 });
             }
 
-            // 글자 수 체크
-            if (captionLength >= 100 && captionLength < 2200) {
-                scores.readability += 10;
-                scores.feedback.push({
-                    icon: '✅',
-                    type: 'success',
-                    title: '가독성 - 글자 수',
-                    message: `본문 길이가 ${captionLength}자로 적절합니다.`
-                });
-            } else if (captionLength < 100) {
-                scores.feedback.push({
-                    icon: '⚠️',
-                    type: 'warning',
-                    title: '가독성 - 글자 수',
-                    message: `본문이 너무 짧습니다 (${captionLength}자). 100자 이상 작성하세요.`
-                });
-            } else {
-                scores.feedback.push({
-                    icon: '⚠️',
-                    type: 'warning',
-                    title: '가독성 - 글자 수',
-                    message: `본문이 너무 깁니다 (${captionLength}자). 2200자 미만으로 줄이세요.`
-                });
-            }
-
-            // C. 해시태그 최적화 (30점)
+            // 3. 해시태그 최적화 (15점)
             const hashtagCount = (hashtags.match(/#/g) || []).length;
 
-            if (hashtagCount >= 3 && hashtagCount <= 7) {
-                scores.hashtag = 30;
+            if (hashtagCount >= 5 && hashtagCount <= 15) {
+                scores.hashtag = 15;
                 scores.feedback.push({
                     icon: '✅',
                     type: 'success',
-                    title: '해시태그 최적화',
-                    message: `해시태그 ${hashtagCount}개! 2024 최신 트렌드에 완벽히 맞습니다.`
+                    title: '텍스트 - 해시태그',
+                    message: `해시태그 ${hashtagCount}개! 2025 알고리즘에 최적화되었습니다.`
                 });
-            } else if (hashtagCount >= 8 && hashtagCount <= 15) {
-                scores.hashtag = 20;
+            } else if (hashtagCount >= 3 && hashtagCount < 5) {
+                scores.hashtag = 10;
                 scores.feedback.push({
                     icon: '⚠️',
                     type: 'warning',
-                    title: '해시태그 최적화',
-                    message: `해시태그 ${hashtagCount}개. 너무 많으면 스팸으로 인식될 수 있어요. 3~7개가 최적입니다.`
+                    title: '텍스트 - 해시태그',
+                    message: `해시태그 ${hashtagCount}개. 조금 더 추가하면 좋겠습니다 (권장: 5~15개).`
                 });
             } else if (hashtagCount > 30) {
                 scores.hashtag = 0;
                 scores.feedback.push({
                     icon: '🚨',
                     type: 'error',
-                    title: '해시태그 최적화',
-                    message: `해시태그 ${hashtagCount}개는 과도합니다! 스팸 판정 위험. 7개 이하로 줄이세요.`
+                    title: '텍스트 - 해시태그',
+                    message: `해시태그 ${hashtagCount}개는 과도합니다! 스팸으로 인식될 위험이 큽니다.`
                 });
             } else {
-                scores.hashtag = 0;
+                scores.hashtag = 3;
                 scores.feedback.push({
                     icon: '🚨',
                     type: 'error',
-                    title: '해시태그 최적화',
-                    message: `해시태그가 너무 적습니다 (${hashtagCount}개). 최소 3개 이상 사용하세요.`
+                    title: '텍스트 - 해시태그',
+                    message: `해시태그가 너무 적습니다 (${hashtagCount}개). 최소 5개 이상 사용하세요.`
                 });
             }
 
-            // D. 행동 유도 (CTA) (20점)
+            // 4. CTA (15점)
             const lastThreeLines = lines.slice(-3).join(' ').toLowerCase();
-            const ctaKeywords = ['저장', '공유', '링크', '프로필', '확인', '댓글', '문의', 'dm', '클릭', '팔로우'];
+            const ctaKeywords = ['저장', '공유', '링크', '프로필', '확인', '댓글', '문의', 'dm', '클릭', '팔로우', '타고', '받기'];
             const hasCTA = ctaKeywords.some(keyword => lastThreeLines.includes(keyword));
 
             if (hasCTA) {
-                scores.cta = 20;
+                scores.cta = 15;
                 scores.feedback.push({
                     icon: '✅',
                     type: 'success',
-                    title: '행동 유도 (CTA)',
-                    message: '마지막에 명확한 행동 유도 문구가 있습니다! 참여율이 높아집니다.'
+                    title: '텍스트 - 행동 유도 (CTA)',
+                    message: '마지막에 명확한 행동 유도가 있습니다! 참여율 UP! 🚀'
                 });
             } else {
+                scores.cta = 0;
                 scores.feedback.push({
                     icon: '🚨',
                     type: 'error',
-                    title: '행동 유도 (CTA)',
-                    message: '마지막에 CTA가 없습니다. "저장", "공유", "프로필 확인" 같은 문구를 추가하세요.'
+                    title: '텍스트 - 행동 유도 (CTA)',
+                    message: 'CTA가 없습니다. "저장", "공유", "프로필 확인" 같은 문구를 추가하세요!'
                 });
             }
 
-            // Calculate total
-            scores.total = scores.hooking + scores.readability + scores.hashtag + scores.cta;
+            // Calculate totals
+            scores.visualTotal = scores.brightness + scores.contrast;
+            scores.textTotal = scores.hooking + scores.readability + scores.hashtag + scores.cta;
+            scores.total = scores.visualTotal + scores.textTotal;
 
             return scores;
         }
@@ -470,33 +827,76 @@
         function displayResults(scores) {
             // Total Score
             document.getElementById('totalScore').textContent = scores.total;
+            document.getElementById('visualScore').textContent = scores.visualTotal;
+            document.getElementById('textScore').textContent = scores.textTotal;
 
             // Score Level
             const scoreLevelEl = document.getElementById('scoreLevel');
-            if (scores.total >= 90) {
-                scoreLevelEl.textContent = '🏆 완벽! 상위 1% 수준입니다!';
-                scoreLevelEl.className = 'text-lg text-yellow-400 font-semibold mt-2';
-            } else if (scores.total >= 75) {
-                scoreLevelEl.textContent = '🎯 우수! 상위 10% 수준입니다!';
-                scoreLevelEl.className = 'text-lg text-green-400 font-semibold mt-2';
-            } else if (scores.total >= 60) {
-                scoreLevelEl.textContent = '👍 양호! 개선 여지가 있습니다';
-                scoreLevelEl.className = 'text-lg text-blue-400 font-semibold mt-2';
-            } else if (scores.total >= 40) {
-                scoreLevelEl.textContent = '⚠️ 보통. 많은 개선이 필요합니다';
-                scoreLevelEl.className = 'text-lg text-orange-400 font-semibold mt-2';
+            let ctaHtml = '';
+
+            if (scores.total >= 85) {
+                scoreLevelEl.innerHTML = '🏆 <span class="text-yellow-400">완벽! 상위 1% 수준입니다!</span>';
+                ctaHtml = `
+                    <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+                        👏 감각 있으시네요!
+                    </h3>
+                    <p class="text-slate-300 mb-6 text-lg">
+                        ${scores.total}점! 노출 확률 최상급입니다. 전문가 수준의 콘텐츠를 제작하셨네요!
+                    </p>
+                    <button onclick="window.location.href='#'" class="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold py-4 px-8 rounded-xl transition-all transform hover:scale-105">
+                        <i class="fas fa-gift mr-2"></i>
+                        무료 프리미엄 소재 받기
+                    </button>
+                `;
+            } else if (scores.total >= 70) {
+                scoreLevelEl.innerHTML = '🎯 <span class="text-green-400">우수! 상위 10% 수준입니다!</span>';
+                ctaHtml = `
+                    <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
+                        👍 잘하고 계세요!
+                    </h3>
+                    <p class="text-slate-300 mb-6 text-lg">
+                        ${scores.total}점으로 훌륭합니다. 조금만 더 보완하면 완벽해집니다!
+                    </p>
+                    <button onclick="window.location.href='#'" class="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold py-4 px-8 rounded-xl transition-all transform hover:scale-105">
+                        <i class="fas fa-rocket mr-2"></i>
+                        최적화 가이드 받기
+                    </button>
+                `;
+            } else if (scores.total >= 50) {
+                scoreLevelEl.innerHTML = '⚠️ <span class="text-orange-400">보통. 개선이 필요합니다</span>';
+                ctaHtml = `
+                    <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
+                        🔧 전문가의 도움이 필요합니다
+                    </h3>
+                    <p class="text-slate-300 mb-6 text-lg">
+                        ${scores.total}점... 노출에 어려움을 겪을 수 있습니다. 전문가와 상담해보세요!
+                    </p>
+                    <button onclick="window.location.href='#'" class="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-4 px-8 rounded-xl transition-all transform hover:scale-105">
+                        <i class="fas fa-user-md mr-2"></i>
+                        무료 1:1 컨설팅 신청
+                    </button>
+                `;
             } else {
-                scoreLevelEl.textContent = '🚨 위험! 대폭 수정이 필요합니다';
-                scoreLevelEl.className = 'text-lg text-red-400 font-semibold mt-2';
+                scoreLevelEl.innerHTML = '🚨 <span class="text-red-400">위험! 대폭 수정이 필요합니다</span>';
+                ctaHtml = `
+                    <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-red-400 to-pink-500 bg-clip-text text-transparent">
+                        🚨 노출 실패 위험!
+                    </h3>
+                    <p class="text-slate-300 mb-6 text-lg">
+                        ${scores.total}점은 매우 위험합니다. 지금 바로 전문가의 심폐소생술이 필요합니다!
+                    </p>
+                    <button onclick="window.location.href='#'" class="bg-gradient-to-r from-red-500 via-pink-500 to-red-500 hover:from-red-600 hover:via-pink-600 hover:to-red-600 text-white font-bold py-4 px-8 rounded-xl transition-all transform hover:scale-105 animate-pulse">
+                        <i class="fas fa-first-aid mr-2"></i>
+                        긴급! 심폐소생술 받기
+                    </button>
+                `;
             }
+
+            document.getElementById('ctaSection').innerHTML = ctaHtml;
 
             // Donut Chart
             const donutCtx = document.getElementById('donutChart').getContext('2d');
-
-            // Destroy previous chart if exists
-            if (window.donutChartInstance) {
-                window.donutChartInstance.destroy();
-            }
+            if (window.donutChartInstance) window.donutChartInstance.destroy();
 
             window.donutChartInstance = new Chart(donutCtx, {
                 type: 'doughnut',
@@ -505,11 +905,11 @@
                     datasets: [{
                         data: [scores.total, 100 - scores.total],
                         backgroundColor: [
-                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(168, 85, 247, 0.8)',
                             'rgba(51, 65, 85, 0.3)'
                         ],
                         borderColor: [
-                            'rgba(59, 130, 246, 1)',
+                            'rgba(168, 85, 247, 1)',
                             'rgba(51, 65, 85, 0.5)'
                         ],
                         borderWidth: 2
@@ -519,54 +919,47 @@
                     responsive: true,
                     maintainAspectRatio: true,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
-                                    return context.label + ': ' + context.parsed + '점';
-                                }
+                                label: (context) => context.label + ': ' + context.parsed + '점'
                             }
                         }
                     },
-                    cutout: '70%'
+                    cutout: '75%'
                 }
             });
 
-            // Radar Chart
+            // Radar Chart (6각)
             const radarCtx = document.getElementById('radarChart').getContext('2d');
-
-            // Destroy previous chart if exists
-            if (window.radarChartInstance) {
-                window.radarChartInstance.destroy();
-            }
+            if (window.radarChartInstance) window.radarChartInstance.destroy();
 
             window.radarChartInstance = new Chart(radarCtx, {
                 type: 'radar',
                 data: {
-                    labels: ['후킹력\n(30점)', '가독성\n(20점)', '해시태그\n(30점)', 'CTA\n(20점)'],
+                    labels: ['후킹력\n(15점)', '가독성\n(15점)', '해시태그\n(15점)', 'CTA\n(15점)', '밝기\n(20점)', '주목도\n(20점)'],
                     datasets: [{
                         label: '내 점수',
-                        data: [scores.hooking, scores.readability, scores.hashtag, scores.cta],
+                        data: [scores.hooking, scores.readability, scores.hashtag, scores.cta, scores.brightness, scores.contrast],
                         fill: true,
-                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                        borderColor: 'rgb(59, 130, 246)',
-                        pointBackgroundColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(168, 85, 247, 0.2)',
+                        borderColor: 'rgb(168, 85, 247)',
+                        pointBackgroundColor: 'rgb(236, 72, 153)',
                         pointBorderColor: '#fff',
                         pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: 'rgb(59, 130, 246)',
-                        pointRadius: 5,
-                        pointHoverRadius: 7
+                        pointHoverBorderColor: 'rgb(236, 72, 153)',
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        borderWidth: 3
                     }, {
                         label: '만점',
-                        data: [30, 20, 30, 20],
+                        data: [15, 15, 15, 15, 20, 20],
                         fill: true,
-                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                        borderColor: 'rgba(34, 197, 94, 0.5)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.05)',
+                        borderColor: 'rgba(34, 197, 94, 0.3)',
                         pointBackgroundColor: 'rgba(34, 197, 94, 0.5)',
                         pointBorderColor: '#fff',
-                        pointRadius: 3,
+                        pointRadius: 4,
                         borderDash: [5, 5]
                     }]
                 },
@@ -575,31 +968,24 @@
                     maintainAspectRatio: true,
                     scales: {
                         r: {
-                            angleLines: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
+                            angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
                             pointLabels: {
-                                color: 'rgba(255, 255, 255, 0.8)',
-                                font: {
-                                    size: 12
-                                }
+                                color: 'rgba(255, 255, 255, 0.9)',
+                                font: { size: 13, weight: 'bold' }
                             },
                             ticks: {
                                 color: 'rgba(255, 255, 255, 0.5)',
-                                backdropColor: 'transparent'
+                                backdropColor: 'transparent',
+                                stepSize: 5
                             },
                             suggestedMin: 0,
-                            suggestedMax: 30
+                            suggestedMax: 20
                         }
                     },
                     plugins: {
                         legend: {
-                            labels: {
-                                color: 'rgba(255, 255, 255, 0.8)'
-                            }
+                            labels: { color: 'rgba(255, 255, 255, 0.9)', font: { size: 14 } }
                         }
                     }
                 }
@@ -617,13 +1003,13 @@
                 };
 
                 const feedbackItem = document.createElement('div');
-                feedbackItem.className = `border-l-4 ${typeColors[item.type]} p-4 rounded`;
+                feedbackItem.className = `border-l-4 ${typeColors[item.type]} p-5 rounded-lg`;
                 feedbackItem.innerHTML = `
-                    <div class="flex items-start">
-                        <span class="text-2xl mr-3">${item.icon}</span>
+                    <div class="flex items-start gap-3">
+                        <span class="text-3xl">${item.icon}</span>
                         <div class="flex-1">
-                            <h4 class="font-bold text-white mb-1">${item.title}</h4>
-                            <p class="text-slate-300 text-sm">${item.message}</p>
+                            <h4 class="font-bold text-white text-lg mb-2">${item.title}</h4>
+                            <p class="text-slate-300">${item.message}</p>
                         </div>
                     </div>
                 `;
