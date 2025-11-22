@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인스타그램 노출 확률 계산기 - AI SEO 분석</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .loading-spinner {
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse-glow {
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+        }
+
+        .score-circle {
+            position: relative;
+            width: 200px;
+            height: 200px;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-white">
+
+    <!-- Header -->
+    <header class="py-8 px-4">
+        <div class="container mx-auto max-w-4xl text-center">
+            <div class="flex items-center justify-center mb-4">
+                <i class="fab fa-instagram text-5xl bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent"></i>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black mb-3 bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+                인스타그램 노출 확률 계산기
+            </h1>
+            <p class="text-slate-400 text-lg">
+                AI 기반 SEO 분석으로 내 게시물의 노출 가능성을 진단하세요
+            </p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto max-w-4xl px-4 pb-16">
+
+        <!-- Input Form -->
+        <section class="glass-effect rounded-2xl p-6 md:p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-edit text-blue-500 mr-3"></i>
+                게시물 정보 입력
+            </h2>
+
+            <form id="analysisForm" class="space-y-6">
+
+                <!-- 계정 체급 -->
+                <div>
+                    <label class="block text-sm font-semibold mb-2 text-slate-300">
+                        <i class="fas fa-users mr-2"></i>계정 체급
+                    </label>
+                    <select id="accountLevel" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        <option value="beginner">왕초보 (팔로워 0~100)</option>
+                        <option value="growing">성장기 (팔로워 100~1k)</option>
+                        <option value="micro">마이크로 인플루언서 (1k~10k)</option>
+                    </select>
+                </div>
+
+                <!-- 캡션 내용 -->
+                <div>
+                    <label class="block text-sm font-semibold mb-2 text-slate-300">
+                        <i class="fas fa-align-left mr-2"></i>캡션(본문) 내용
+                    </label>
+                    <textarea
+                        id="caption"
+                        rows="8"
+                        placeholder="게시물 본문을 입력하세요...&#10;&#10;예시:&#10;충격! 이 방법을 몰랐다면 손해&#10;&#10;인스타 노출을 3배 올리는 비밀 공개합니다.&#10;저는 이 방법으로 팔로워 1000명 달성했어요.&#10;&#10;프로필 링크에서 자세히 확인하세요!"
+                        class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none"
+                    ></textarea>
+                    <p class="text-xs text-slate-500 mt-2">
+                        <span id="captionLength">0</span>자 | 줄바꿈: <span id="lineBreaks">0</span>회
+                    </p>
+                </div>
+
+                <!-- 해시태그 -->
+                <div>
+                    <label class="block text-sm font-semibold mb-2 text-slate-300">
+                        <i class="fas fa-hashtag mr-2"></i>해시태그
+                    </label>
+                    <textarea
+                        id="hashtags"
+                        rows="3"
+                        placeholder="#인스타그램 #마케팅 #소상공인 #광고 #SNS마케팅"
+                        class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none"
+                    ></textarea>
+                    <p class="text-xs text-slate-500 mt-2">
+                        해시태그 개수: <span id="hashtagCount">0</span>개
+                    </p>
+                </div>
+
+                <!-- Submit Button -->
+                <button
+                    type="submit"
+                    class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-4 rounded-lg transition-all transform hover:scale-[1.02] pulse-glow"
+                >
+                    <i class="fas fa-chart-line mr-2"></i>
+                    노출 확률 분석하기
+                </button>
+            </form>
+        </section>
+
+        <!-- Loading Animation -->
+        <div id="loadingSection" class="hidden text-center py-16">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-slate-400 text-lg">AI가 게시물을 분석하고 있습니다...</p>
+        </div>
+
+        <!-- Results Section -->
+        <section id="resultsSection" class="hidden fade-in">
+
+            <!-- 종합 점수 -->
+            <div class="glass-effect rounded-2xl p-6 md:p-8 mb-8 text-center">
+                <h2 class="text-2xl font-bold mb-6">
+                    <i class="fas fa-trophy text-yellow-500 mr-2"></i>
+                    종합 노출 점수
+                </h2>
+
+                <div class="flex flex-col md:flex-row items-center justify-center gap-8">
+                    <!-- Score Number -->
+                    <div>
+                        <div class="text-8xl font-black bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-2">
+                            <span id="totalScore">0</span>
+                        </div>
+                        <div class="text-2xl font-bold text-slate-300">
+                            / 100점
+                        </div>
+                        <div id="scoreLevel" class="text-lg text-blue-400 font-semibold mt-2">
+                            <!-- 평가 등급 -->
+                        </div>
+                    </div>
+
+                    <!-- Donut Chart -->
+                    <div class="w-48 h-48">
+                        <canvas id="donutChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 레이더 차트 -->
+            <div class="glass-effect rounded-2xl p-6 md:p-8 mb-8">
+                <h2 class="text-2xl font-bold mb-6 text-center">
+                    <i class="fas fa-radar text-blue-500 mr-2"></i>
+                    항목별 균형 분석
+                </h2>
+                <div class="max-w-md mx-auto">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 상세 피드백 -->
+            <div class="glass-effect rounded-2xl p-6 md:p-8 mb-8">
+                <h2 class="text-2xl font-bold mb-6">
+                    <i class="fas fa-clipboard-list text-green-500 mr-2"></i>
+                    상세 진단 리포트
+                </h2>
+                <div id="feedbackList" class="space-y-4">
+                    <!-- 피드백 항목들이 여기에 동적으로 추가됩니다 -->
+                </div>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="glass-effect rounded-2xl p-8 text-center bg-gradient-to-r from-blue-900/30 to-purple-900/30">
+                <h3 class="text-2xl font-bold mb-3">
+                    전문가의 도움이 필요하신가요?
+                </h3>
+                <p class="text-slate-300 mb-6">
+                    이 점수를 바탕으로 인스타그램 마케팅 대행 서비스를 제공합니다
+                </p>
+                <button class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-lg transition-all transform hover:scale-105">
+                    <i class="fas fa-envelope mr-2"></i>
+                    무료 상담 문의하기
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-8 text-slate-500 text-sm">
+        <p>© 2025 Instagram Exposure Calculator. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const form = document.getElementById('analysisForm');
+        const captionInput = document.getElementById('caption');
+        const hashtagsInput = document.getElementById('hashtags');
+        const loadingSection = document.getElementById('loadingSection');
+        const resultsSection = document.getElementById('resultsSection');
+
+        // Real-time counters
+        captionInput.addEventListener('input', () => {
+            const text = captionInput.value;
+            document.getElementById('captionLength').textContent = text.length;
+            const lineBreakCount = (text.match(/\n/g) || []).length;
+            document.getElementById('lineBreaks').textContent = lineBreakCount;
+        });
+
+        hashtagsInput.addEventListener('input', () => {
+            const text = hashtagsInput.value;
+            const hashtagCount = (text.match(/#/g) || []).length;
+            document.getElementById('hashtagCount').textContent = hashtagCount;
+        });
+
+        // Form Submit Handler
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Hide results, show loading
+            resultsSection.classList.add('hidden');
+            loadingSection.classList.remove('hidden');
+
+            // Scroll to loading section
+            loadingSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Simulate AI analysis delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Get form values
+            const accountLevel = document.getElementById('accountLevel').value;
+            const caption = captionInput.value;
+            const hashtags = hashtagsInput.value;
+
+            // Calculate scores
+            const scores = calculateScores(caption, hashtags);
+
+            // Display results
+            displayResults(scores);
+
+            // Hide loading, show results
+            loadingSection.classList.add('hidden');
+            resultsSection.classList.remove('hidden');
+
+            // Scroll to results
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        // Score Calculation Logic
+        function calculateScores(caption, hashtags) {
+            const scores = {
+                hooking: 0,
+                readability: 0,
+                hashtag: 0,
+                cta: 0,
+                feedback: []
+            };
+
+            // A. 후킹력 (30점)
+            const lines = caption.split('\n').filter(line => line.trim() !== '');
+            if (lines.length > 0) {
+                const firstLine = lines[0];
+                const firstLineLength = firstLine.length;
+
+                // 첫 줄 길이 체크 (10~30자)
+                if (firstLineLength >= 10 && firstLineLength <= 30) {
+                    scores.hooking += 15;
+                    scores.feedback.push({
+                        icon: '✅',
+                        type: 'success',
+                        title: '후킹력 - 첫 줄 길이',
+                        message: `첫 줄이 ${firstLineLength}자로 적절합니다! 가독성이 좋습니다.`
+                    });
+                } else if (firstLineLength < 10) {
+                    scores.feedback.push({
+                        icon: '🚨',
+                        type: 'error',
+                        title: '후킹력 - 첫 줄 길이',
+                        message: `첫 줄이 너무 짧습니다 (${firstLineLength}자). 10~30자 사이가 이상적입니다.`
+                    });
+                } else {
+                    scores.feedback.push({
+                        icon: '⚠️',
+                        type: 'warning',
+                        title: '후킹력 - 첫 줄 길이',
+                        message: `첫 줄이 너무 깁니다 (${firstLineLength}자). 10~30자로 줄여보세요.`
+                    });
+                }
+
+                // 후킹 키워드 체크
+                const hookingKeywords = ['충격', '비밀', '공개', '방법', '이유', '결국', '헉', 'ㄷㄷ', '대박', '진짜', '꿀팁', '필수', '추천', '실화'];
+                const hasHookingKeyword = hookingKeywords.some(keyword => firstLine.includes(keyword));
+
+                if (hasHookingKeyword) {
+                    scores.hooking += 15;
+                    scores.feedback.push({
+                        icon: '✅',
+                        type: 'success',
+                        title: '후킹력 - 키워드',
+                        message: '첫 줄에 후킹 키워드가 포함되어 있습니다! 클릭률이 높아집니다.'
+                    });
+                } else {
+                    scores.feedback.push({
+                        icon: '🚨',
+                        type: 'error',
+                        title: '후킹력 - 키워드',
+                        message: '첫 줄이 밋밋합니다. "충격", "비밀", "공개", "방법" 같은 키워드를 넣어보세요.'
+                    });
+                }
+            }
+
+            // B. 가독성 (20점)
+            const lineBreakCount = (caption.match(/\n/g) || []).length;
+            const captionLength = caption.length;
+
+            // 줄바꿈 체크
+            if (lineBreakCount >= 3) {
+                scores.readability += 10;
+                scores.feedback.push({
+                    icon: '✅',
+                    type: 'success',
+                    title: '가독성 - 줄바꿈',
+                    message: `줄바꿈이 ${lineBreakCount}회로 적절합니다. 벽돌글을 피했어요!`
+                });
+            } else {
+                scores.feedback.push({
+                    icon: '⚠️',
+                    type: 'warning',
+                    title: '가독성 - 줄바꿈',
+                    message: `줄바꿈이 ${lineBreakCount}회로 부족합니다. 최소 3회 이상 권장합니다.`
+                });
+            }
+
+            // 글자 수 체크
+            if (captionLength >= 100 && captionLength < 2200) {
+                scores.readability += 10;
+                scores.feedback.push({
+                    icon: '✅',
+                    type: 'success',
+                    title: '가독성 - 글자 수',
+                    message: `본문 길이가 ${captionLength}자로 적절합니다.`
+                });
+            } else if (captionLength < 100) {
+                scores.feedback.push({
+                    icon: '⚠️',
+                    type: 'warning',
+                    title: '가독성 - 글자 수',
+                    message: `본문이 너무 짧습니다 (${captionLength}자). 100자 이상 작성하세요.`
+                });
+            } else {
+                scores.feedback.push({
+                    icon: '⚠️',
+                    type: 'warning',
+                    title: '가독성 - 글자 수',
+                    message: `본문이 너무 깁니다 (${captionLength}자). 2200자 미만으로 줄이세요.`
+                });
+            }
+
+            // C. 해시태그 최적화 (30점)
+            const hashtagCount = (hashtags.match(/#/g) || []).length;
+
+            if (hashtagCount >= 3 && hashtagCount <= 7) {
+                scores.hashtag = 30;
+                scores.feedback.push({
+                    icon: '✅',
+                    type: 'success',
+                    title: '해시태그 최적화',
+                    message: `해시태그 ${hashtagCount}개! 2024 최신 트렌드에 완벽히 맞습니다.`
+                });
+            } else if (hashtagCount >= 8 && hashtagCount <= 15) {
+                scores.hashtag = 20;
+                scores.feedback.push({
+                    icon: '⚠️',
+                    type: 'warning',
+                    title: '해시태그 최적화',
+                    message: `해시태그 ${hashtagCount}개. 너무 많으면 스팸으로 인식될 수 있어요. 3~7개가 최적입니다.`
+                });
+            } else if (hashtagCount > 30) {
+                scores.hashtag = 0;
+                scores.feedback.push({
+                    icon: '🚨',
+                    type: 'error',
+                    title: '해시태그 최적화',
+                    message: `해시태그 ${hashtagCount}개는 과도합니다! 스팸 판정 위험. 7개 이하로 줄이세요.`
+                });
+            } else {
+                scores.hashtag = 0;
+                scores.feedback.push({
+                    icon: '🚨',
+                    type: 'error',
+                    title: '해시태그 최적화',
+                    message: `해시태그가 너무 적습니다 (${hashtagCount}개). 최소 3개 이상 사용하세요.`
+                });
+            }
+
+            // D. 행동 유도 (CTA) (20점)
+            const lastThreeLines = lines.slice(-3).join(' ').toLowerCase();
+            const ctaKeywords = ['저장', '공유', '링크', '프로필', '확인', '댓글', '문의', 'dm', '클릭', '팔로우'];
+            const hasCTA = ctaKeywords.some(keyword => lastThreeLines.includes(keyword));
+
+            if (hasCTA) {
+                scores.cta = 20;
+                scores.feedback.push({
+                    icon: '✅',
+                    type: 'success',
+                    title: '행동 유도 (CTA)',
+                    message: '마지막에 명확한 행동 유도 문구가 있습니다! 참여율이 높아집니다.'
+                });
+            } else {
+                scores.feedback.push({
+                    icon: '🚨',
+                    type: 'error',
+                    title: '행동 유도 (CTA)',
+                    message: '마지막에 CTA가 없습니다. "저장", "공유", "프로필 확인" 같은 문구를 추가하세요.'
+                });
+            }
+
+            // Calculate total
+            scores.total = scores.hooking + scores.readability + scores.hashtag + scores.cta;
+
+            return scores;
+        }
+
+        // Display Results
+        function displayResults(scores) {
+            // Total Score
+            document.getElementById('totalScore').textContent = scores.total;
+
+            // Score Level
+            const scoreLevelEl = document.getElementById('scoreLevel');
+            if (scores.total >= 90) {
+                scoreLevelEl.textContent = '🏆 완벽! 상위 1% 수준입니다!';
+                scoreLevelEl.className = 'text-lg text-yellow-400 font-semibold mt-2';
+            } else if (scores.total >= 75) {
+                scoreLevelEl.textContent = '🎯 우수! 상위 10% 수준입니다!';
+                scoreLevelEl.className = 'text-lg text-green-400 font-semibold mt-2';
+            } else if (scores.total >= 60) {
+                scoreLevelEl.textContent = '👍 양호! 개선 여지가 있습니다';
+                scoreLevelEl.className = 'text-lg text-blue-400 font-semibold mt-2';
+            } else if (scores.total >= 40) {
+                scoreLevelEl.textContent = '⚠️ 보통. 많은 개선이 필요합니다';
+                scoreLevelEl.className = 'text-lg text-orange-400 font-semibold mt-2';
+            } else {
+                scoreLevelEl.textContent = '🚨 위험! 대폭 수정이 필요합니다';
+                scoreLevelEl.className = 'text-lg text-red-400 font-semibold mt-2';
+            }
+
+            // Donut Chart
+            const donutCtx = document.getElementById('donutChart').getContext('2d');
+
+            // Destroy previous chart if exists
+            if (window.donutChartInstance) {
+                window.donutChartInstance.destroy();
+            }
+
+            window.donutChartInstance = new Chart(donutCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['획득 점수', '미달 점수'],
+                    datasets: [{
+                        data: [scores.total, 100 - scores.total],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(51, 65, 85, 0.3)'
+                        ],
+                        borderColor: [
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(51, 65, 85, 0.5)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + '점';
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // Radar Chart
+            const radarCtx = document.getElementById('radarChart').getContext('2d');
+
+            // Destroy previous chart if exists
+            if (window.radarChartInstance) {
+                window.radarChartInstance.destroy();
+            }
+
+            window.radarChartInstance = new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['후킹력\n(30점)', '가독성\n(20점)', '해시태그\n(30점)', 'CTA\n(20점)'],
+                    datasets: [{
+                        label: '내 점수',
+                        data: [scores.hooking, scores.readability, scores.hashtag, scores.cta],
+                        fill: true,
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        pointBackgroundColor: 'rgb(59, 130, 246)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(59, 130, 246)',
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }, {
+                        label: '만점',
+                        data: [30, 20, 30, 20],
+                        fill: true,
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        borderColor: 'rgba(34, 197, 94, 0.5)',
+                        pointBackgroundColor: 'rgba(34, 197, 94, 0.5)',
+                        pointBorderColor: '#fff',
+                        pointRadius: 3,
+                        borderDash: [5, 5]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            pointLabels: {
+                                color: 'rgba(255, 255, 255, 0.8)',
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.5)',
+                                backdropColor: 'transparent'
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 30
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.8)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Feedback List
+            const feedbackList = document.getElementById('feedbackList');
+            feedbackList.innerHTML = '';
+
+            scores.feedback.forEach(item => {
+                const typeColors = {
+                    success: 'border-green-500 bg-green-500/10',
+                    warning: 'border-yellow-500 bg-yellow-500/10',
+                    error: 'border-red-500 bg-red-500/10'
+                };
+
+                const feedbackItem = document.createElement('div');
+                feedbackItem.className = `border-l-4 ${typeColors[item.type]} p-4 rounded`;
+                feedbackItem.innerHTML = `
+                    <div class="flex items-start">
+                        <span class="text-2xl mr-3">${item.icon}</span>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-white mb-1">${item.title}</h4>
+                            <p class="text-slate-300 text-sm">${item.message}</p>
+                        </div>
+                    </div>
+                `;
+                feedbackList.appendChild(feedbackItem);
+            });
+        }
+    </script>
+
+</body>
+</html>
