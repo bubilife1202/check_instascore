@@ -587,9 +587,11 @@
                 return;
             }
 
-            // URL 검증
-            if (!instagramUrl.includes('instagram.com/p/') && !instagramUrl.includes('instagram.com/reel/')) {
-                alert('올바른 인스타그램 게시물 링크를 입력해주세요.\n\n예시:\n• https://www.instagram.com/p/ABC123/\n• https://www.instagram.com/reel/XYZ456/');
+            // URL 검증 (p, reel, reels 모두 지원)
+            if (!instagramUrl.includes('instagram.com/p/') &&
+                !instagramUrl.includes('instagram.com/reel/') &&
+                !instagramUrl.includes('instagram.com/reels/')) {
+                alert('올바른 인스타그램 게시물 링크를 입력해주세요.\n\n예시:\n• https://www.instagram.com/p/ABC123/\n• https://www.instagram.com/reel/XYZ456/\n• https://www.instagram.com/reels/XYZ456/');
                 return;
             }
 
