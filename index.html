@@ -198,25 +198,64 @@
             </div>
         </div>
 
-        <!-- Instagram Quick Import Section -->
-        <section class="glass-effect rounded-3xl p-6 md:p-8 mb-8 bg-gradient-to-r from-pink-900/10 to-purple-900/10 border-2 border-pink-500/30">
-            <div class="flex items-center gap-3 mb-4">
-                <i class="fab fa-instagram text-3xl text-pink-500"></i>
-                <h3 class="text-2xl font-bold">⚡ 인스타그램에서 빠르게 가져오기</h3>
+        <!-- Quick Start Section (메인 강조) -->
+        <section class="glass-effect rounded-3xl p-6 md:p-8 mb-8 bg-gradient-to-r from-purple-900/20 to-pink-900/20 border-2 border-purple-500/40">
+            <div class="text-center mb-6">
+                <h3 class="text-3xl font-bold mb-3 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    ⚡ 3초 만에 시작하기
+                </h3>
+                <p class="text-slate-300">복잡한 입력 없이 바로 체험해보세요!</p>
             </div>
 
-            <div class="space-y-4">
+            <!-- 빠른 체험 버튼 (메인) -->
+            <button
+                type="button"
+                id="fillAllSample"
+                class="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white font-bold py-6 px-8 rounded-xl transition-all transform hover:scale-[1.02] shadow-2xl text-lg mb-4"
+            >
+                <i class="fas fa-magic mr-2"></i>
+                ✨ 예시 데이터로 바로 체험하기
+            </button>
+            <p class="text-center text-sm text-slate-400">
+                이미지 + 캡션 + 해시태그 자동 입력 → 바로 분석!
+            </p>
+        </section>
+
+        <!-- Instagram Import Section (접을 수 있는 고급 옵션) -->
+        <section class="glass-effect rounded-3xl p-6 md:p-8 mb-8 border border-slate-700/50">
+            <button
+                type="button"
+                id="toggleInstagramSection"
+                class="w-full flex items-center justify-between text-left"
+            >
+                <div class="flex items-center gap-3">
+                    <i class="fab fa-instagram text-2xl text-pink-500"></i>
+                    <div>
+                        <h3 class="text-xl font-bold">Instagram에서 가져오기 (선택)</h3>
+                        <p class="text-sm text-slate-400">내 게시물로 직접 분석하고 싶다면 클릭</p>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down text-slate-400 transition-transform" id="chevronIcon"></i>
+            </button>
+
+            <div id="instagramContent" class="hidden mt-6 space-y-4">
+                <!-- 안내 메시지 -->
+                <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+                    <p class="text-sm text-yellow-200">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <strong>알림:</strong> Instagram API 제한으로 자동 로드가 실패할 수 있습니다.
+                        실패 시 아래 "직접 업로드" 방법을 사용하세요.
+                    </p>
+                </div>
+
                 <!-- 링크 입력 -->
                 <div>
-                    <label class="block mb-2 text-sm font-semibold flex items-center gap-2">
-                        <span class="bg-pink-500/20 text-pink-400 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">1</span>
-                        게시물 링크 붙여넣기
-                    </label>
+                    <label class="block mb-2 text-sm font-semibold">Instagram 게시물 URL</label>
                     <div class="flex gap-2">
                         <input
                             type="url"
                             id="instagramUrl"
-                            placeholder="https://www.instagram.com/p/ABC123/ 또는 https://www.instagram.com/reel/..."
+                            placeholder="https://www.instagram.com/p/... 또는 reels/..."
                             class="flex-1 bg-slate-800/80 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-pink-500 transition"
                         />
                         <button
@@ -224,57 +263,36 @@
                             id="loadFromInstagram"
                             class="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 px-8 py-3 rounded-lg font-bold whitespace-nowrap transition-all transform hover:scale-105"
                         >
-                            <i class="fas fa-download mr-2"></i>불러오기
+                            <i class="fas fa-download mr-2"></i>시도
                         </button>
                     </div>
-                    <p class="text-xs text-slate-400 mt-2 flex items-start gap-1">
-                        <i class="fas fa-info-circle mt-0.5"></i>
-                        <span>인스타 게시물 URL을 붙여넣으면 <strong class="text-pink-400">썸네일 이미지</strong>를 자동으로 가져옵니다</span>
-                    </p>
-                </div>
-
-                <!-- 캡션 복사 가이드 -->
-                <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-                    <p class="font-semibold mb-3 text-sm flex items-center gap-2">
-                        <span class="bg-blue-500/20 text-blue-400 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">2</span>
-                        캡션 복사하는 법 <span class="text-blue-400">(30초 소요)</span>
-                    </p>
-                    <ol class="text-sm text-slate-300 space-y-2 ml-2">
-                        <li class="flex items-start gap-2">
-                            <span class="text-blue-400 font-bold min-w-[20px]">①</span>
-                            <span>인스타 게시물 페이지로 이동</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="text-blue-400 font-bold min-w-[20px]">②</span>
-                            <span>게시물 우측 상단 <kbd class="mx-1">⋯</kbd> 클릭</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="text-blue-400 font-bold min-w-[20px]">③</span>
-                            <span><strong class="text-white">"캡션 복사"</strong> 메뉴 선택</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="text-blue-400 font-bold min-w-[20px]">④</span>
-                            <span>아래 캡션 입력란에 붙여넣기 <kbd class="mx-1">Ctrl+V</kbd> 또는 <kbd class="mx-1">⌘+V</kbd></span>
-                        </li>
-                    </ol>
                 </div>
 
                 <!-- 또는 구분선 -->
                 <div class="flex items-center gap-3 my-4">
                     <div class="flex-1 border-t border-slate-600"></div>
-                    <span class="text-slate-400 text-sm">또는</span>
+                    <span class="text-slate-400 text-sm">추천 방법</span>
                     <div class="flex-1 border-t border-slate-600"></div>
                 </div>
 
-                <!-- 빠른 체험 버튼 -->
-                <button
-                    type="button"
-                    id="fillAllSample"
-                    class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg"
-                >
-                    <i class="fas fa-magic mr-2"></i>
-                    ✨ 예시 데이터로 빠르게 체험하기 (3초 완성)
-                </button>
+                <!-- 직접 업로드 안내 -->
+                <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                    <p class="font-semibold mb-3 text-sm">📸 이미지 직접 업로드 (더 빠름)</p>
+                    <ol class="text-sm text-slate-300 space-y-2 ml-2">
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-400 font-bold min-w-[20px]">1.</span>
+                            <span>인스타 게시물 이미지 <strong>우클릭</strong> → "이미지 저장" 또는 스크린샷</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-400 font-bold min-w-[20px]">2.</span>
+                            <span>아래 <strong>"이미지 업로드 영역"</strong>에 드래그 앤 드롭</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-400 font-bold min-w-[20px]">3.</span>
+                            <span>캡션 복사: 게시물 <kbd class="mx-1">⋯</kbd> → "캡션 복사" → 붙여넣기</span>
+                        </li>
+                    </ol>
+                </div>
             </div>
         </section>
 
@@ -577,6 +595,20 @@
             };
             reader.readAsDataURL(file);
         }
+
+        // Instagram 섹션 토글
+        document.getElementById('toggleInstagramSection')?.addEventListener('click', () => {
+            const content = document.getElementById('instagramContent');
+            const chevron = document.getElementById('chevronIcon');
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                chevron.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                chevron.style.transform = 'rotate(0deg)';
+            }
+        });
 
         // Instagram URL 로드
         document.getElementById('loadFromInstagram')?.addEventListener('click', async () => {
