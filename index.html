@@ -580,7 +580,7 @@
 
         // Instagram URL 로드
         document.getElementById('loadFromInstagram')?.addEventListener('click', async () => {
-            const instagramUrl = document.getElementById('instagramUrl').value.trim();
+            let instagramUrl = document.getElementById('instagramUrl').value.trim();
 
             if (!instagramUrl) {
                 alert('인스타그램 게시물 링크를 입력해주세요.');
@@ -593,65 +593,132 @@
                 return;
             }
 
+            // URL 정리 - 쿼리 파라미터 제거 (utm_source 등)
+            try {
+                const urlObj = new URL(instagramUrl);
+                instagramUrl = urlObj.origin + urlObj.pathname;
+                // 마지막 슬래시 제거
+                instagramUrl = instagramUrl.replace(/\/$/, '');
+                console.log('정리된 URL:', instagramUrl);
+            } catch (e) {
+                console.warn('URL 파싱 실패, 원본 사용:', e);
+            }
+
             // 로딩 표시
             const btn = document.getElementById('loadFromInstagram');
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>로딩 중...';
             btn.disabled = true;
 
-            try {
-                // Instagram oEmbed API 호출
-                const oembedUrl = `https://api.instagram.com/oembed/?url=${encodeURIComponent(instagramUrl)}`;
-                const corsProxy = 'https://corsproxy.io/?url=';
+            // 여러 CORS Proxy 시도 (fallback)
+            const corsProxies = [
+                'https://api.allorigins.win/raw?url=',
+                'https://corsproxy.io/?url=',
+                'https://cors-anywhere.herokuapp.com/'
+            ];
 
-                const response = await fetch(corsProxy + encodeURIComponent(oembedUrl));
+            let lastError = null;
 
-                if (!response.ok) {
-                    throw new Error('Instagram 데이터를 불러올 수 없습니다.');
+            for (let i = 0; i < corsProxies.length; i++) {
+                const corsProxy = corsProxies[i];
+
+                try {
+                    console.log(`시도 ${i + 1}/${corsProxies.length}: ${corsProxy}`);
+
+                    // Instagram oEmbed API 호출
+                    const oembedUrl = `https://api.instagram.com/oembed/?url=${encodeURIComponent(instagramUrl)}`;
+
+                    const response = await fetch(corsProxy + encodeURIComponent(oembedUrl), {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    console.log('응답 상태:', response.status);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    console.log('oEmbed 응답:', data);
+
+                    // 이미지 로드
+                    if (data.thumbnail_url) {
+                        // 성공 - 이미지 로드
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous';
+
+                        img.onload = () => {
+                            uploadedImage = data.thumbnail_url;
+                            previewImg.src = data.thumbnail_url;
+                            uploadPrompt.classList.add('hidden');
+                            imagePreview.classList.remove('hidden');
+
+                            // 스캔 애니메이션
+                            setTimeout(() => {
+                                scanGrid.classList.add('active');
+                                scanLine.classList.add('active');
+                            }, 100);
+
+                            alert('✅ 이미지가 로드되었습니다!\n\n다음 단계:\n위 가이드를 참고해서 캡션을 복사해 붙여넣으세요.');
+
+                            // 스크롤을 캡션 입력란으로 이동
+                            document.getElementById('caption').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        };
+
+                        img.onerror = () => {
+                            console.error('이미지 로딩 실패:', data.thumbnail_url);
+                            alert('⚠️ 이미지 URL을 가져왔지만 로딩에 실패했습니다.\n\n직접 이미지를 업로드하거나 "예시 데이터로 체험하기"를 사용하세요.');
+                        };
+
+                        img.src = data.thumbnail_url;
+
+                        // 성공했으므로 루프 종료
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        return;
+
+                    } else {
+                        throw new Error('이미지 URL을 찾을 수 없습니다.');
+                    }
+
+                } catch (error) {
+                    console.error(`Proxy ${i + 1} 실패:`, error);
+                    lastError = error;
+                    // 다음 proxy 시도
+                    continue;
                 }
-
-                const data = await response.json();
-
-                // 이미지 로드
-                if (data.thumbnail_url) {
-                    const img = new Image();
-                    img.crossOrigin = 'anonymous';
-
-                    img.onload = () => {
-                        uploadedImage = data.thumbnail_url;
-                        previewImg.src = data.thumbnail_url;
-                        uploadPrompt.classList.add('hidden');
-                        imagePreview.classList.remove('hidden');
-
-                        // 스캔 애니메이션
-                        setTimeout(() => {
-                            scanGrid.classList.add('active');
-                            scanLine.classList.add('active');
-                        }, 100);
-
-                        alert('✅ 이미지가 로드되었습니다!\n\n다음 단계:\n위 가이드를 참고해서 캡션을 복사해 붙여넣으세요.');
-
-                        // 스크롤을 캡션 입력란으로 이동
-                        document.getElementById('caption').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    };
-
-                    img.onerror = () => {
-                        throw new Error('이미지 로딩 실패');
-                    };
-
-                    img.src = data.thumbnail_url;
-                } else {
-                    throw new Error('이미지 URL을 찾을 수 없습니다.');
-                }
-
-            } catch (error) {
-                console.error('Instagram 로드 오류:', error);
-                alert('❌ 이미지를 불러올 수 없습니다.\n\n가능한 원인:\n• 비공개 게시물\n• 잘못된 URL 형식\n• 일시적인 네트워크 오류\n• Instagram API 제한\n\n해결 방법:\n1. URL을 다시 확인하세요\n2. 또는 직접 이미지 파일을 업로드하세요\n3. 또는 "예시 데이터로 체험하기" 버튼을 클릭하세요');
-            } finally {
-                // 로딩 종료
-                btn.innerHTML = originalText;
-                btn.disabled = false;
             }
+
+            // 모든 proxy 실패
+            console.error('모든 CORS proxy 실패. 최종 에러:', lastError);
+
+            // 로딩 종료
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+
+            // 실패 메시지
+            alert(`❌ Instagram에서 이미지를 가져올 수 없습니다.
+
+🔍 디버깅 정보:
+• URL: ${instagramUrl}
+• 마지막 에러: ${lastError?.message || '알 수 없음'}
+
+💡 해결 방법:
+
+1️⃣ 직접 이미지 업로드:
+   • 인스타 게시물 스크린샷 찍기
+   • 또는 이미지 우클릭 → "이미지 저장"
+   • 위 업로드 영역에 드래그
+
+2️⃣ 빠른 체험:
+   • "예시 데이터로 체험하기" 버튼 클릭
+
+3️⃣ URL 확인:
+   • 공개 게시물인지 확인
+   • URL에 불필요한 파라미터 제거`);
         });
 
         // 예시 데이터로 모두 채우기
